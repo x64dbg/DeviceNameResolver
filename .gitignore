@@ -1,0 +1,7 @@
+bin/
+*.opensdf
+*.sdf
+*.suo
+ipch/
+Win32/
+x64/
