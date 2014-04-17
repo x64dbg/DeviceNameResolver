@@ -45,10 +45,10 @@ bool DeviceNameResolver::resolveDeviceLongNameToShort(const TCHAR * sourcePath, 
 {
     for (unsigned int i = 0; i < deviceNameList.size(); i++)
     {
-        if (!_tcsnicmp(deviceNameList[i].longName, sourcePath, deviceNameList[i].longNameLength) && sourcePath[deviceNameList[i].longNameLength]==TEXT('\\'))
+        if (!_tcsnicmp(deviceNameList.at(i).longName, sourcePath, deviceNameList.at(i).longNameLength) && sourcePath[deviceNameList.at(i).longNameLength]==TEXT('\\'))
         {
-            _tcscpy_s(targetPath, MAX_PATH, deviceNameList[i].shortName);
-            _tcscat_s(targetPath, MAX_PATH, sourcePath + deviceNameList[i].longNameLength);
+            _tcscpy_s(targetPath, MAX_PATH, deviceNameList.at(i).shortName);
+            _tcscat_s(targetPath, MAX_PATH, sourcePath + deviceNameList.at(i).longNameLength);
             return true;
         }
     }
@@ -72,7 +72,7 @@ void DeviceNameResolver::fixVirtualDevices()
 
     for (unsigned int i = 0; i < deviceNameList.size(); i++)
     {
-        wcscpy_s(longCopy, deviceNameList[i].longName);
+        wcscpy_s(longCopy, deviceNameList.at(i).longName);
 
         NativeWinApi::RtlInitUnicodeString(&unicodeInput, longCopy);
         InitializeObjectAttributes(&oa, &unicodeInput, 0, 0, 0);
@@ -86,7 +86,7 @@ void DeviceNameResolver::fixVirtualDevices()
             if (NT_SUCCESS(NativeWinApi::NtQuerySymbolicLinkObject(hFile, &unicodeOutput, &retLen)))
             {
                 hardDisk.longNameLength = wcslen(unicodeOutput.Buffer);
-                wcscpy_s(hardDisk.shortName, deviceNameList[i].shortName);
+                wcscpy_s(hardDisk.shortName, deviceNameList.at(i).shortName);
                 wcscpy_s(hardDisk.longName, unicodeOutput.Buffer);
                 deviceNameList.push_back(hardDisk);
             }
