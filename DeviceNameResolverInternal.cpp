@@ -45,7 +45,7 @@ bool DeviceNameResolver::resolveDeviceLongNameToShort(const TCHAR * sourcePath, 
 {
     for (unsigned int i = 0; i < deviceNameList.size(); i++)
     {
-        if (!_tcsnicmp(deviceNameList[i].longName, sourcePath, deviceNameList[i].longNameLength))
+        if (!_tcsnicmp(deviceNameList[i].longName, sourcePath, deviceNameList[i].longNameLength) && sourcePath[deviceNameList[i].longNameLength]==TEXT('\\'))
         {
             _tcscpy_s(targetPath, MAX_PATH, deviceNameList[i].shortName);
             _tcscat_s(targetPath, MAX_PATH, sourcePath + deviceNameList[i].longNameLength);
