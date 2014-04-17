@@ -22,7 +22,7 @@ void DeviceNameResolver::initDeviceNameList()
 
     deviceNameList.reserve(3);
 
-    for ( TCHAR shortD = TEXT('a'); shortD < TEXT('z'); shortD++ )
+    for ( TCHAR shortD = TEXT('a'); shortD <= TEXT('z'); shortD++ )
     {
         shortName[0] = shortD;
         if (QueryDosDevice( shortName, longName, MAX_PATH ) > 0)
