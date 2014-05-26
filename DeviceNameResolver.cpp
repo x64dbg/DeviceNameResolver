@@ -73,10 +73,8 @@ __declspec(dllexport) bool PathFromFileHandleW(HANDLE hFile, wchar_t* szPath, si
         IN DWORD dwFlags
         );
     static GETFINALPATHNAMEBYHANDLEW GetFPNBHW=(GETFINALPATHNAMEBYHANDLEW)GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "GetFinalPathNameByHandleW");
-    if(GetFPNBHW)
+    if(GetFPNBHW && GetFPNBHW(hFile, szPath, (DWORD)(nSize/sizeof(wchar_t)), 0))
     {
-        if(!GetFPNBHW(hFile, szPath, (DWORD)(nSize/sizeof(wchar_t)), 0))
-            return false;
         wcscpy_s(szPath, nSize, &szPath[4]); //remove "\\?\"
         return true;
     }
@@ -94,10 +92,8 @@ __declspec(dllexport) bool PathFromFileHandleA(HANDLE hFile, char* szPath, size_
         IN DWORD dwFlags
         );
     static GETFINALPATHNAMEBYHANDLEA GetFPNBHA=(GETFINALPATHNAMEBYHANDLEA)GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "GetFinalPathNameByHandleA");
-    if(GetFPNBHA)
+    if(GetFPNBHA && GetFPNBHA(hFile, szPath, (DWORD)nSize, 0))
     {
-        if(!GetFPNBHA(hFile, szPath, (DWORD)nSize, 0))
-            return false;
         strcpy_s(szPath, nSize, &szPath[4]); //remove "\\?\"
         return true;
     }
