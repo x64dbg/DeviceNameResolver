@@ -38,6 +38,7 @@ __declspec(dllexport) bool DevicePathFromFileHandleW(HANDLE hFile, wchar_t* szDe
     bool bRet=false;
     if(NativeWinApi::NtQueryObject(hFile, ObjectNameInformation, 0, 0, &ReturnLength)==STATUS_INFO_LENGTH_MISMATCH)
     {
+        ReturnLength+=0x2000; //on Windows XP SP3 ReturnLength will not be set just add some buffer space to fix this
         POBJECT_NAME_INFORMATION NameInformation=(POBJECT_NAME_INFORMATION)GlobalAlloc(0, ReturnLength);
         if(NativeWinApi::NtQueryObject(hFile, ObjectNameInformation, NameInformation, ReturnLength, 0)==STATUS_SUCCESS)
         {
