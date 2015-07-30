@@ -51,6 +51,16 @@ __declspec(dllexport) bool DevicePathFromFileHandleW(HANDLE hFile, wchar_t* szDe
         }
         GlobalFree(NameInformation);
     }
+    if(_wcsnicmp(szDevicePath, L"\\Device\\LanmanRedirector\\", 25) == 0) // Win XP
+    {
+        wcscpy_s(szDevicePath, nSize / sizeof(wchar_t), L"\\\\");
+        wcscat_s(szDevicePath, nSize / sizeof(wchar_t), &szDevicePath[25]);
+    }
+    else if(_wcsnicmp(szDevicePath, L"\\Device\\Mup\\", 12) == 0) // Win 7
+    {
+        wcscpy_s(szDevicePath, nSize / sizeof(wchar_t), L"\\\\");
+        wcscat_s(szDevicePath, nSize / sizeof(wchar_t), &szDevicePath[12]);
+    }
     return bRet;
 }
 
@@ -76,29 +86,32 @@ __declspec(dllexport) bool PathFromFileHandleW(HANDLE hFile, wchar_t* szPath, si
     static GETFINALPATHNAMEBYHANDLEW GetFPNBHW=(GETFINALPATHNAMEBYHANDLEW)GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "GetFinalPathNameByHandleW");
     if(GetFPNBHW && GetFPNBHW(hFile, szPath, (DWORD)(nSize/sizeof(wchar_t)), 0))
     {
-        wcscpy_s(szPath, nSize, &szPath[4]); //remove "\\?\"
+        if(_wcsnicmp(szPath, L"\\\\?\\UNC\\", 8) == 0) // Server path
+        {
+            wcscpy_s(szPath, nSize / sizeof(wchar_t), L"\\\\");
+            wcscat_s(szPath, nSize / sizeof(wchar_t), &szPath[8]);
+        }
+        else if(_wcsnicmp(szPath, L"\\\\?\\", 4) == 0 && szPath[5]==L':') // Drive path
+        {
+            wcscpy_s(szPath, nSize/sizeof(wchar_t), &szPath[4]);
+        }
         return true;
     }
     if(!DevicePathFromFileHandleW(hFile, szPath, nSize))
         return false;
-    return DevicePathToPathW(szPath, szPath, nSize);
+    std::wstring oldPath(szPath);
+    if (!DevicePathToPathW(szPath, szPath, nSize))
+        wcscpy_s(szPath, nSize / sizeof(wchar_t), oldPath.c_str());
+    return true;
 }
 
 __declspec(dllexport) bool PathFromFileHandleA(HANDLE hFile, char* szPath, size_t nSize)
 {
-    typedef DWORD (WINAPI* GETFINALPATHNAMEBYHANDLEA) (
-        IN HANDLE hFile,
-        OUT char* lpszFilePath,
-        IN DWORD cchFilePath,
-        IN DWORD dwFlags
-        );
-    static GETFINALPATHNAMEBYHANDLEA GetFPNBHA=(GETFINALPATHNAMEBYHANDLEA)GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "GetFinalPathNameByHandleA");
-    if(GetFPNBHA && GetFPNBHA(hFile, szPath, (DWORD)nSize, 0))
-    {
-        strcpy_s(szPath, nSize, &szPath[4]); //remove "\\?\"
-        return true;
-    }
-    if(!DevicePathFromFileHandleA(hFile, szPath, nSize))
+    DynBuf newDevicePathBuf(nSize*sizeof(wchar_t));
+    wchar_t* newDevicePath = (wchar_t*)newDevicePathBuf.GetPtr();
+    if (!PathFromFileHandleW(hFile, newDevicePath, nSize*sizeof(wchar_t)))
         return false;
-    return DevicePathToPathA(szPath, szPath, nSize);
+    if (!WideCharToMultiByte(CP_ACP, NULL, newDevicePath, -1, szPath, (int)wcslen(newDevicePath) + 1, NULL, NULL))
+        return false;
+    return true;
 }
