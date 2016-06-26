@@ -24,14 +24,14 @@ def_NtClose NativeWinApi::NtClose = 0;
 
 void NativeWinApi::initialize()
 {
-    if (RtlNtStatusToDosError)
+    if(RtlNtStatusToDosError)
     {
         return;
     }
 
     HMODULE hModuleNtdll = GetModuleHandle(L"ntdll.dll");
 
-    if (!hModuleNtdll)
+    if(!hModuleNtdll)
     {
         return;
     }
@@ -69,7 +69,7 @@ PPEB NativeWinApi::getProcessEnvironmentBlockAddress(HANDLE processHandle)
     ULONG lReturnLength = 0;
     PROCESS_BASIC_INFORMATION processBasicInformation;
 
-    if ((NtQueryInformationProcess(processHandle,ProcessBasicInformation,&processBasicInformation,sizeof(PROCESS_BASIC_INFORMATION),&lReturnLength) >= 0) && (lReturnLength == sizeof(PROCESS_BASIC_INFORMATION)))
+    if((NtQueryInformationProcess(processHandle, ProcessBasicInformation, &processBasicInformation, sizeof(PROCESS_BASIC_INFORMATION), &lReturnLength) >= 0) && (lReturnLength == sizeof(PROCESS_BASIC_INFORMATION)))
     {
         //printf("NtQueryInformationProcess success %d\n",sizeof(PROCESS_BASIC_INFORMATION));
 

@@ -22,10 +22,10 @@ void DeviceNameResolver::initDeviceNameList()
 
     deviceNameList.reserve(3);
 
-    for ( TCHAR shortD = TEXT('a'); shortD <= TEXT('z'); shortD++ )
+    for(TCHAR shortD = TEXT('a'); shortD <= TEXT('z'); shortD++)
     {
         shortName[0] = shortD;
-        if (QueryDosDevice( shortName, longName, MAX_PATH ) > 0)
+        if(QueryDosDevice(shortName, longName, MAX_PATH) > 0)
         {
             hardDisk.shortName[0] = _totupper(shortD);
             hardDisk.shortName[1] = TEXT(':');
@@ -41,11 +41,11 @@ void DeviceNameResolver::initDeviceNameList()
     fixVirtualDevices();
 }
 
-bool DeviceNameResolver::resolveDeviceLongNameToShort(const TCHAR * sourcePath, TCHAR * targetPath)
+bool DeviceNameResolver::resolveDeviceLongNameToShort(const TCHAR* sourcePath, TCHAR* targetPath)
 {
-    for (unsigned int i = 0; i < deviceNameList.size(); i++)
+    for(unsigned int i = 0; i < deviceNameList.size(); i++)
     {
-        if (!_tcsnicmp(deviceNameList.at(i).longName, sourcePath, deviceNameList.at(i).longNameLength) && sourcePath[deviceNameList.at(i).longNameLength]==TEXT('\\'))
+        if(!_tcsnicmp(deviceNameList.at(i).longName, sourcePath, deviceNameList.at(i).longNameLength) && sourcePath[deviceNameList.at(i).longNameLength] == TEXT('\\'))
         {
             _tcscpy_s(targetPath, MAX_PATH, deviceNameList.at(i).shortName);
             _tcscat_s(targetPath, MAX_PATH, sourcePath + deviceNameList.at(i).longNameLength);
@@ -67,10 +67,10 @@ void DeviceNameResolver::fixVirtualDevices()
     HardDisk hardDisk;
 
     unicodeOutput.Buffer = (PWSTR)malloc(BufferSize);
-    if (!unicodeOutput.Buffer)
+    if(!unicodeOutput.Buffer)
         return;
 
-    for (unsigned int i = 0; i < deviceNameList.size(); i++)
+    for(unsigned int i = 0; i < deviceNameList.size(); i++)
     {
         wcscpy_s(longCopy, deviceNameList.at(i).longName);
 
@@ -83,7 +83,7 @@ void DeviceNameResolver::fixVirtualDevices()
             unicodeOutput.MaximumLength = unicodeOutput.Length;
             ZeroMemory(unicodeOutput.Buffer, unicodeOutput.Length);
 
-            if (NT_SUCCESS(NativeWinApi::NtQuerySymbolicLinkObject(hFile, &unicodeOutput, &retLen)))
+            if(NT_SUCCESS(NativeWinApi::NtQuerySymbolicLinkObject(hFile, &unicodeOutput, &retLen)))
             {
                 hardDisk.longNameLength = wcslen(unicodeOutput.Buffer);
                 wcscpy_s(hardDisk.shortName, deviceNameList.at(i).shortName);

@@ -20,7 +20,7 @@ class DeviceNameResolver
 public:
     DeviceNameResolver();
     ~DeviceNameResolver();
-    bool resolveDeviceLongNameToShort(const TCHAR * sourcePath, TCHAR * targetPath);
+    bool resolveDeviceLongNameToShort(const TCHAR* sourcePath, TCHAR* targetPath);
 private:
     std::vector<HardDisk> deviceNameList;
 
